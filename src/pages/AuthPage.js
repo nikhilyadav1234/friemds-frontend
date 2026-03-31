@@ -591,7 +591,7 @@ export default function AuthPage({ onLogin }) {
           ? interests.split(',').map(i => i.trim())
           : undefined
       });
-
+      sessionStorage.setItem("friemds_token", res.data.token);
       onLogin(res.data.token, res.data.user);
 
       window.location.href = res.data.isNewUser ? "/profile" : "/";
