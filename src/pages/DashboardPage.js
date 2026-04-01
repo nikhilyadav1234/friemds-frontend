@@ -433,21 +433,46 @@ export default function DashboardPage({ user }) {
   const [friendRequests, setFriendRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [friends, setFriends] = useState([]);
+  const [sortedFriends, setSortedFriends] = useState([]);
   const navigate = useNavigate();
 const token = sessionStorage.getItem('friemds_token');
   
 
   const fetchData = async () => {
     try {
-      const [studentsRes, requestsRes, friendsRes] = await Promise.all([
+      const [studentsRes, requestsRes, friendsRes, msgRes] = await Promise.all([
   axios.get(`${API}/users`, { headers: { Authorization: `Bearer ${token}` } }),
   axios.get(`${API}/friends/requests`, { headers: { Authorization: `Bearer ${token}` } }),
-  axios.get(`${API}/friends`, { headers: { Authorization: `Bearer ${token}` } }) // 🔥 ADD
+  axios.get(`${API}/friends`, { headers: { Authorization: `Bearer ${token}` } }),
+  axios.get(`${API}/messages/last`, { headers: { Authorization: `Bearer ${token}` } })
 ]);
 
 setStudents(studentsRes.data.users || studentsRes.data);
 setFriendRequests(requestsRes.data);
 setFriends(friendsRes.data); // 🔥 ADD
+const messages = msgRes.data;
+
+// map: friendId → latest message time
+const lastMap = {};
+
+messages.forEach(m => {
+  const other =
+    m.sender_id === user.user_id ? m.recipient_id : m.sender_id;
+
+  if (!lastMap[other]) {
+    lastMap[other] = m.created_at;
+  }
+});
+
+// sort friends
+const sorted = friendsRes.data.sort((a, b) => {
+  const t1 = lastMap[a.user_id] || 0;
+  const t2 = lastMap[b.user_id] || 0;
+
+  return new Date(t2) - new Date(t1);
+});
+
+setSortedFriends(sorted);
       setStudents(studentsRes.data.users || studentsRes.data);
       setFriendRequests(requestsRes.data);
     } catch {
@@ -582,7 +607,12 @@ setFriends(friendsRes.data); // 🔥 ADD
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"/>
 
         <div className="absolute bottom-0 p-4">
-          <h2 className="text-xl font-bold">{students[0].name}</h2>
+          <h2 
+            onClick={() => navigate(`/user/${students[0].user_id}`)}
+            className="text-xl font-bold cursor-pointer hover:underline"
+          >
+            {students[0].name}
+          </h2>
           <p className="text-sm opacity-70">
             {students[0].bio || "No bio yet"}
           </p>
@@ -646,9 +676,14 @@ setFriends(friendsRes.data); // 🔥 ADD
   <div className="mt-10">
     <h3>Your Friends</h3>
 
-    {friends.map(f => (
+   {sortedFriends.map(f => (
       <div key={f.user_id} style={{display:"flex", justifyContent:"space-between", marginBottom:"10px"}}>
-        <span>{f.name}</span>
+        <span 
+          onClick={() => navigate(`/user/${f.user_id}`)}
+          className="cursor-pointer hover:underline"
+        >
+          {f.name}
+        </span>
         <button onClick={() => navigate(`/chat/${f.user_id}`)}>
           Chat
         </button>

@@ -317,12 +317,15 @@ export default function ProfilePage({ user, setUser, onLogout }) {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    bio: user?.bio || '',
-    interests: user?.interests?.join(', ') || '',
-    year: user?.year || '',
-    major: user?.major || ''
-  });
+  name: user?.name || '',
+  bio: user?.bio || '',
+  interests: user?.interests?.join(', ') || '',
+  year: user?.year || '',
+  major: user?.major || '',
+  age: user?.age || '',
+  gender: user?.gender || '',
+  phone: user?.phone || ''
+});
 
 const token = sessionStorage.getItem('friemds_token');
   const handleSave = async () => {
@@ -478,6 +481,27 @@ const token = sessionStorage.getItem('friemds_token');
                 className="bg-white/10 border-white/10"
               />
 
+              <Input
+                value={formData.age}
+                onChange={(e) => setFormData({...formData, age: e.target.value})}
+                placeholder="Age"
+                className="bg-white/10 border-white/10"
+              />
+
+              <Input
+                value={formData.gender}
+                onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                placeholder="Gender"
+                className="bg-white/10 border-white/10"
+              />
+
+              <Input
+                value={formData.phone}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                placeholder="Phone"
+                className="bg-white/10 border-white/10"
+              />
+
               <Button
                 onClick={handleSave}
                 className="w-full rounded-full bg-gradient-to-r from-pink-500 to-purple-500"
@@ -527,6 +551,26 @@ const token = sessionStorage.getItem('friemds_token');
                   </div>
                 </div>
               )}
+              {user?.age && (
+                  <div>
+                    <p className="text-zinc-400">Age</p>
+                    <p>{user.age}</p>
+                  </div>
+                )}
+
+                {user?.gender && (
+                  <div>
+                    <p className="text-zinc-400">Gender</p>
+                    <p>{user.gender}</p>
+                  </div>
+                )}
+
+                {user?.phone && (
+                  <div>
+                    <p className="text-zinc-400">Phone</p>
+                    <p>{user.phone}</p>
+                  </div>
+                )}
 
             </div>
           )}

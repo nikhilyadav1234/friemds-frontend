@@ -552,8 +552,12 @@ export default function AuthPage({ onLogin }) {
 
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
-  const [name, setName] = useState('');
-  const [interests, setInterests] = useState('');
+  const [firstName, setFirstName] = useState('');
+const [lastName, setLastName] = useState('');
+const [age, setAge] = useState('');
+const [gender, setGender] = useState('');
+const [phone, setPhone] = useState('');
+const [interests, setInterests] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSendOTP = async (e) => {
@@ -584,13 +588,18 @@ export default function AuthPage({ onLogin }) {
 
     try {
       const res = await axios.post(`${API}/auth/verify-otp`, {
-        email,
-        otp,
-        name: mode === "signup" ? name : undefined,
-        interests: interests
-          ? interests.split(',').map(i => i.trim())
-          : undefined
-      });
+  email,
+  otp,
+  firstName,
+  lastName,
+  age,
+  gender,
+  phone,
+  name: `${firstName} ${lastName}`,
+  interests: interests
+    ? interests.split(',').map(i => i.trim())
+    : []
+});
       sessionStorage.setItem("friemds_token", res.data.token);
       onLogin(res.data.token, res.data.user);
 
@@ -686,22 +695,20 @@ export default function AuthPage({ onLogin }) {
               </div>
 
               {mode === "signup" && (
-                <>
-                  <Input
-                    placeholder="Full Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="h-12 rounded-xl bg-white/10 border-white/10"
-                  />
-
-                  <Input
-                    placeholder="Interests"
-                    value={interests}
-                    onChange={(e) => setInterests(e.target.value)}
-                    className="h-12 rounded-xl bg-white/10 border-white/10"
-                  />
-                </>
-              )}
+  <>
+    <Input placeholder="First Name" value={firstName} onChange={(e)=>setFirstName(e.target.value)} />
+    
+    <Input placeholder="Last Name" value={lastName} onChange={(e)=>setLastName(e.target.value)} />
+    
+    <Input placeholder="Age" value={age} onChange={(e)=>setAge(e.target.value)} />
+    
+    <Input placeholder="Gender" value={gender} onChange={(e)=>setGender(e.target.value)} />
+    
+    <Input placeholder="Phone Number" value={phone} onChange={(e)=>setPhone(e.target.value)} />
+    
+    <Input placeholder="Interests" value={interests} onChange={(e)=>setInterests(e.target.value)} />
+  </>
+)}
 
               <Button className="w-full h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90">
                 {loading ? "Sending..." : "Continue"}

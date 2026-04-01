@@ -239,6 +239,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import axios from 'axios';
 import { toast } from 'sonner';
 import Navigation from '@/components/Navigation';
+import { useNavigate } from 'react-router-dom';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -249,10 +250,12 @@ export default function SearchPage() {
   const [major, setMajor] = useState('');
   const [year, setYear] = useState('');
   const [results, setResults] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
 const token = sessionStorage.getItem('friemds_token');
+const navigate = useNavigate();
 const handleSearch = useCallback(async () => {
   setLoading(true);
 
@@ -279,6 +282,22 @@ useEffect(() => {
     handleSearch();
   }
 }, [query, handleSearch]);
+
+
+useEffect(() => {
+  const fetchAll = async () => {
+    try {
+      const res = await axios.get(`${API}/users`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAllUsers(res.data);
+    } catch {
+      toast.error("Failed to load users");
+    }
+  };
+
+  fetchAll();
+}, []);
 
 
   const sendFriendRequest = async (id) => {
@@ -399,7 +418,12 @@ useEffect(() => {
                     </Avatar>
 
                     <div>
-                      <p className="font-semibold">{s.name}</p>
+                      <p 
+                        onClick={() => navigate(`/user/${s.user_id || s._id}`)}
+                        className="font-semibold cursor-pointer hover:underline"
+                      >
+                        {s.name}
+                      </p>
                       <p className="text-xs text-zinc-400">{s.email}</p>
 
                       <div className="flex gap-1 mt-1 flex-wrap">
@@ -426,6 +450,47 @@ useEffect(() => {
 
           </motion.div>
         )}
+
+        {results.length === 0 && allUsers.length > 0 && (
+  <div className="space-y-4">
+    <h2 className="text-lg font-semibold">All Students</h2>
+
+    {allUsers.map((s) => (
+      <Card key={s.user_id} className="bg-white/5 border-white/10">
+        <CardContent className="flex justify-between items-center p-4">
+
+          <div className="flex gap-3 items-center">
+            <Avatar>
+              {s.avatar ? (
+                <img src={s.avatar} className="w-full h-full object-cover rounded-full"/>
+              ) : (
+                <AvatarFallback>
+                  {s.name?.[0]}
+                </AvatarFallback>
+              )}
+            </Avatar>
+
+            <p 
+              onClick={() => navigate(`/user/${s.user_id}`)}
+              className="cursor-pointer hover:underline"
+            >
+              {s.name}
+            </p>
+          </div>
+
+          <Button
+            size="sm"
+            onClick={() => sendFriendRequest(s.user_id)}
+            className="rounded-full bg-gradient-to-r from-pink-500 to-purple-500"
+          >
+            Add
+          </Button>
+
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+)}
 
       </div>
 
