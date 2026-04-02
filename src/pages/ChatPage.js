@@ -238,9 +238,14 @@ export default function ChatPage({ user }) {
 useEffect(() => {
   fetchData();
 
-  if (socketRef.current) return; // 🔥 duplicate rok
+  if (socketRef.current) return;
 
-  socketRef.current = new WebSocket("ws://localhost:8000/ws");
+  const WS_URL =
+    window.location.hostname === "localhost"
+      ? "ws://localhost:8000"
+      : "wss://friemds-backend.onrender.com";
+
+  socketRef.current = new WebSocket(`${WS_URL}/ws`);
 
   socketRef.current.onopen = () => {
     console.log("✅ WS Connected");
@@ -259,9 +264,13 @@ useEffect(() => {
     }
   };
 
+  socketRef.current.onerror = (err) => {
+    console.log("❌ WS Error", err);
+  };
+
   return () => {
     socketRef.current?.close();
-    socketRef.current = null; // 🔥 VERY IMPORTANT
+    socketRef.current = null;
   };
 
 }, [friendId]);
@@ -317,12 +326,16 @@ useEffect(() => {
     );
 
     // send via WS
-    socketRef.current.send(JSON.stringify({
-      type: "message",
-      sender_id: user.user_id,
-      recipient_id: friendId,
-      content: newMessage
-    }));
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+  socketRef.current.send(JSON.stringify({
+    type: "message",
+    sender_id: user.user_id,
+    recipient_id: friendId,
+    content: newMessage
+  }));
+} else {
+  console.log("❌ Socket not connected");
+}
 
     // UI update
     setMessages(prev => [
