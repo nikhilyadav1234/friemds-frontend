@@ -9,15 +9,17 @@ export default function UserProfile() {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [requested, setRequested] = useState(false);
+  const [requestedId, setRequestedId] = useState(null);
 
   const cancelRequest = async () => {
   try {
-    await axios.delete(`${API}/friends/cancel/${id}`, {
+    await axios.delete(`${API}/friends/cancel/${requestedId}`, { // 🔥 CHANGE HERE
       headers: { Authorization: `Bearer ${token}` }
     });
 
     toast.success("Request cancelled ❌");
     setRequested(false);
+    setRequestedId(null);
 
   } catch (err) {
     console.log(err.response?.data);
@@ -33,12 +35,12 @@ export default function UserProfile() {
     );
 
     toast.success("Friend request sent ❤️");
-    setRequested(true); // 🔥 button change
+    setRequested(true);
+    setRequestedId(id); // 🔥 ADD THIS
 
   } catch (err) {
-    if (err.response?.data?.msg === "Request already sent") {
-      setRequested(true); // 🔥 already sent case
-    }
+    setRequested(true);
+    setRequestedId(id); // 🔥 ADD THIS
     toast.error(err.response?.data?.msg || "Error");
   }
 };
@@ -56,9 +58,6 @@ export default function UserProfile() {
 
 
 
-
-
-
   const checkRequest = async () => {
     const res = await axios.get(`${API}/friends/sent`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -69,6 +68,7 @@ export default function UserProfile() {
 
     if (alreadySent) {
       setRequested(true);
+      setRequestedId(id);
     }
   };
 
