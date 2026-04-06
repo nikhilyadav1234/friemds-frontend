@@ -8,6 +8,19 @@ export default function UserProfile() {
   const { id } = useParams();
   const [user, setUser] = useState(null);
 
+  const sendFriendRequest = async () => {
+  try {
+    await axios.post(`${API}/friends/request`,
+      { recipient_id: id },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    alert("Friend request sent ❤️");
+  } catch (err) {
+    alert("Already sent ya error hai");
+  }
+};
+
   const token = sessionStorage.getItem("friemds_token");
 
   useEffect(() => {
@@ -49,6 +62,13 @@ export default function UserProfile() {
 
         {/* NAME */}
         <h2 className="text-xl font-semibold">{user.name}</h2>
+
+        <button
+          onClick={sendFriendRequest}
+          className="mt-3 px-4 py-2 bg-pink-500 rounded-full text-sm"
+        >
+          Add Friend ❤️
+        </button>
 
         {/* EMAIL */}
         <p className="text-sm text-zinc-400">{user.email}</p>
