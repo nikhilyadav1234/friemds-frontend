@@ -17,11 +17,11 @@ export default function UserProfile() {
     });
 
     toast.success("Request cancelled ❌");
-    setRequested(false); // 🔥 wapas Add Friend
+    setRequested(false);
 
-  } catch {
+  } catch (err) {
     console.log(err.response?.data);
-    toast.error("Error cancelling request");
+    toast.error(err.response?.data?.msg || "Error cancelling request");
   }
 };
 
