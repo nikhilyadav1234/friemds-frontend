@@ -688,7 +688,7 @@ useEffect(() => {
 
 
       
-{friends.length > 0 && (
+{/* {friends.length > 0 && (
   <div className="mt-10">
     <h3>Your Friends</h3>
 
@@ -706,7 +706,7 @@ useEffect(() => {
       </div>
     ))}
   </div>
-)}
+)} */}
 
       <Navigation currentPage="home"/>
     </div>
