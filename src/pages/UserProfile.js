@@ -10,6 +10,19 @@ export default function UserProfile() {
   const [user, setUser] = useState(null);
   const [requested, setRequested] = useState(false);
 
+  const cancelRequest = async () => {
+  try {
+    await axios.delete(`${API}/friends/cancel/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    toast.success("Request cancelled ❌");
+    setRequested(false); // 🔥 wapas Add Friend
+
+  } catch {
+    toast.error("Error cancelling request");
+  }
+};
 
  const sendFriendRequest = async () => {
   try {
@@ -93,9 +106,21 @@ export default function UserProfile() {
         {/* NAME */}
         <h2 className="text-xl font-semibold">{user.name}</h2>
 
-        <button onClick={cancelRequest}>
-            Requested ⏳ (tap to cancel)
-          </button>
+        {requested ? (
+  <button
+    onClick={cancelRequest}
+    className="mt-3 px-4 py-2 bg-red-500 hover:bg-red-600 rounded-full text-sm"
+  >
+    Cancel ❌
+  </button>
+) : (
+  <button
+    onClick={sendFriendRequest}
+    className="mt-3 px-4 py-2 bg-pink-500 hover:bg-pink-600 rounded-full text-sm"
+  >
+    Add Friend ❤️
+  </button>
+)}
 
         {/* EMAIL */}
         <p className="text-sm text-zinc-400">{user.email}</p>
