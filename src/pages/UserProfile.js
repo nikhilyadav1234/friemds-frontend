@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+const [requested, setRequested] = useState(false);
 import axios from "axios";
 import { toast } from "sonner";
 
@@ -9,7 +10,7 @@ export default function UserProfile() {
   const { id } = useParams();
   const [user, setUser] = useState(null);
 
-  const sendFriendRequest = async () => {
+ const sendFriendRequest = async () => {
   try {
     await axios.post(`${API}/friends/request`,
       { recipient_id: id },
@@ -17,22 +18,39 @@ export default function UserProfile() {
     );
 
     toast.success("Friend request sent ❤️");
+    setRequested(true); // 🔥 button change
+
   } catch (err) {
-    toast.error("Already sent");
+    if (err.response?.data?.msg === "Request already sent") {
+      setRequested(true); // 🔥 already sent case
+    }
+    toast.error(err.response?.data?.msg || "Error");
   }
 };
 
   const token = sessionStorage.getItem("friemds_token");
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const res = await axios.get(`${API}/users/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUser(res.data);
-    };
-    fetchUser();
-  }, [id]);
+  const fetchUser = async () => {
+    const res = await axios.get(`${API}/users/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    setUser(res.data);
+  };
+
+  const checkRequest = async () => {
+    const res = await axios.get(`${API}/friends/requests`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const alreadySent = res.data.find(r => r.sender_id === user?.user_id);
+    if (alreadySent) setRequested(true);
+  };
+
+  fetchUser();
+  checkRequest();
+
+}, [id]);
 
   if (!user) return <p>Loading...</p>;
 
@@ -66,9 +84,14 @@ export default function UserProfile() {
 
         <button
           onClick={sendFriendRequest}
-          className="mt-3 px-4 py-2 bg-pink-500 rounded-full text-sm"
+          disabled={requested}
+          className={`mt-3 px-4 py-2 rounded-full text-sm ${
+            requested
+              ? "bg-gray-500 cursor-not-allowed"
+              : "bg-pink-500 hover:bg-pink-600"
+          }`}
         >
-          Add Friend ❤️
+          {requested ? "Requested ⏳" : "Add Friend ❤️"}
         </button>
 
         {/* EMAIL */}
