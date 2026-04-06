@@ -105,17 +105,21 @@ const cancelRequest = async () => {
         {/* NAME */}
         <h2 className="text-xl font-semibold">{user.name}</h2>
 
-        <button
-          onClick={sendFriendRequest}
-          disabled={requested}
-          className={`mt-3 px-4 py-2 rounded-full text-sm ${
-            requested
-              ? "bg-gray-500 cursor-not-allowed"
-              : "bg-pink-500 hover:bg-pink-600"
-          }`}
-        >
-          {requested ? "Requested ⏳" : "Add Friend ❤️"}
-        </button>
+        {requested ? (
+          <button
+            onClick={cancelRequest}
+            className="mt-3 px-4 py-2 bg-red-500 hover:bg-red-600 rounded-full text-sm"
+          >
+            Cancel ❌
+          </button>
+        ) : (
+          <button
+            onClick={sendFriendRequest}
+            className="mt-3 px-4 py-2 bg-pink-500 hover:bg-pink-600 rounded-full text-sm"
+          >
+            Add Friend ❤️
+          </button>
+        )}
 
         {/* EMAIL */}
         <p className="text-sm text-zinc-400">{user.email}</p>
