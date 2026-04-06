@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-const [requested, setRequested] = useState(false);
 import axios from "axios";
 import { toast } from "sonner";
 
@@ -9,6 +8,8 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 export default function UserProfile() {
   const { id } = useParams();
   const [user, setUser] = useState(null);
+  const [requested, setRequested] = useState(false);
+
 
  const sendFriendRequest = async () => {
   try {
