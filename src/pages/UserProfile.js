@@ -40,6 +40,23 @@ export default function UserProfile() {
     setUser(res.data);
   };
 
+
+
+
+const cancelRequest = async () => {
+  try {
+    await axios.delete(`${API}/friends/cancel/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    toast.success("Request cancelled ❌");
+    setRequested(false); // 🔥 wapas Add Friend
+
+  } catch {
+    toast.error("Error cancelling request");
+  }
+};
+
   const checkRequest = async () => {
     const res = await axios.get(`${API}/friends/sent`, {
       headers: { Authorization: `Bearer ${token}` }
