@@ -32,6 +32,7 @@ export default function UserProfile() {
   const token = sessionStorage.getItem("friemds_token");
 
   useEffect(() => {
+
   const fetchUser = async () => {
     const res = await axios.get(`${API}/users/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -40,12 +41,16 @@ export default function UserProfile() {
   };
 
   const checkRequest = async () => {
-    const res = await axios.get(`${API}/friends/requests`, {
+    const res = await axios.get(`${API}/friends/sent`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
-    const alreadySent = res.data.find(r => r.sender_id === user?.user_id);
-    if (alreadySent) setRequested(true);
+    // 🔥 yahi magic hai
+    const alreadySent = res.data.find(r => r.recipient_id === id);
+
+    if (alreadySent) {
+      setRequested(true);
+    }
   };
 
   fetchUser();
