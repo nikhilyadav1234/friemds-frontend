@@ -20,6 +20,7 @@ export default function UserProfile() {
     setRequested(false); // 🔥 wapas Add Friend
 
   } catch {
+    console.log(err.response?.data);
     toast.error("Error cancelling request");
   }
 };
