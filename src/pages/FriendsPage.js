@@ -219,7 +219,8 @@ const fetchLastMessages = async () => {
   })
   .sort((a, b) => new Date(b.lastTime) - new Date(a.lastTime));
 
-
+console.log("friends:", friends);
+console.log("lastMessages:", lastMessages);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white pb-20">
