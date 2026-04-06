@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { toast } from "sonner";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -15,9 +16,9 @@ export default function UserProfile() {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    alert("Friend request sent ❤️");
+    toast.success("Friend request sent ❤️");
   } catch (err) {
-    alert("Already sent ya error hai");
+    toast.error("Already sent");
   }
 };
 
