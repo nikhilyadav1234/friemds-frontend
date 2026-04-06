@@ -154,6 +154,7 @@ const API = `${BACKEND_URL}/api`;
 export default function FriendsPage() {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lastMessages, setLastMessages] = useState([]);
 
   const navigate = useNavigate();
 const token = sessionStorage.getItem('friemds_token');
@@ -173,7 +174,23 @@ const token = sessionStorage.getItem('friemds_token');
   };
    useEffect(() => {
     fetchFriends();
+    fetchLastMessages();
   }, [fetchFriends]);
+
+
+
+
+const fetchLastMessages = async () => {
+  try {
+    const res = await axios.get(`${API}/messages/last`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    setLastMessages(res.data);
+  } catch {
+    console.log("Last message fetch error");
+  }
+};
+
 
   const getInitials = (name) =>
     name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -185,6 +202,24 @@ const token = sessionStorage.getItem('friemds_token');
       </div>
     );
   }
+
+
+
+
+
+  const sortedFriends = [...friends]
+  .map(f => {
+    const chat = lastMessages.find(m => m._id === f.user_id);
+
+    return {
+      ...f,
+      lastMessage: chat?.lastMessage?.content || "",
+      lastTime: chat?.lastMessage?.created_at || ""
+    };
+  })
+  .sort((a, b) => new Date(b.lastTime) - new Date(a.lastTime));
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white pb-20">
@@ -217,7 +252,7 @@ const token = sessionStorage.getItem('friemds_token');
         ) : (
           <div className="space-y-3">
 
-            {friends.map((f, index) => (
+            {sortedFriends.map((f, index) => (
               <motion.div
                 key={f.user_id}
                 initial={{ opacity: 0, y: 15 }}
@@ -243,7 +278,7 @@ const token = sessionStorage.getItem('friemds_token');
                       <div>
                         <p className="font-semibold">{f.name}</p>
                         <p className="text-xs text-zinc-400">
-                          {f.email}
+                          {f.lastMessage || f.email}
                         </p>
                       </div>
                     </div>
