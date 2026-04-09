@@ -861,7 +861,7 @@ export default function AuthPage({ onLogin }) {
 
   const bubbleUsers = [
     {
-      src: '/images/user1.jpg',
+      src: 'image1.jpeg',
       alt: 'user 1',
       duration: 2.4,
       delay: 0,
@@ -869,7 +869,7 @@ export default function AuthPage({ onLogin }) {
       shadow: 'shadow-pink-500/25'
     },
     {
-      src: '/images/user2.jpg',
+      src: 'image2.jpeg',
       alt: 'user 2',
       duration: 2.8,
       delay: 0.2,
@@ -877,7 +877,7 @@ export default function AuthPage({ onLogin }) {
       shadow: 'shadow-purple-500/25'
     },
     {
-      src: '/images/user3.jpg',
+      src: 'image3.png',
       alt: 'user 3',
       duration: 2.2,
       delay: 0.35,

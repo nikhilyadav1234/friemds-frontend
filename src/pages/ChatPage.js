@@ -452,13 +452,6 @@
 
 
 
-
-
-
-
-
-
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -500,8 +493,8 @@ export default function ChatPage({ user, onLogout }) {
   const getInitials = (name) =>
     name?.split(' ').map((n) => n[0]).join('').toUpperCase() || '?';
 
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = useCallback((behavior = 'smooth') => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   }, []);
 
   const fetchData = useCallback(async () => {
@@ -548,8 +541,6 @@ export default function ChatPage({ user, onLogout }) {
     socketRef.current = socket;
 
     socket.onopen = () => {
-      console.log('✅ WS Connected');
-
       socket.send(
         JSON.stringify({
           type: 'register',
@@ -570,7 +561,7 @@ export default function ChatPage({ user, onLogout }) {
     };
 
     socket.onerror = (err) => {
-      console.log('❌ WS Error', err);
+      console.log('WS Error', err);
     };
 
     return () => {
@@ -580,17 +571,17 @@ export default function ChatPage({ user, onLogout }) {
   }, [friendId, user?.user_id]);
 
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom(messages.length > 0 ? 'smooth' : 'auto');
   }, [messages, scrollToBottom]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
 
     const trimmed = newMessage.trim();
-    if (!trimmed) return;
+    if (!trimmed || !friendId || !user?.user_id) return;
 
     const optimisticMessage = {
-      message_id: Date.now(),
+      message_id: `temp-${Date.now()}`,
       sender_id: user.user_id,
       content: trimmed,
     };
@@ -614,8 +605,6 @@ export default function ChatPage({ user, onLogout }) {
             content: trimmed,
           })
         );
-      } else {
-        console.log('❌ Socket not connected');
       }
     } catch (error) {
       toast.error('Failed to send');
@@ -627,299 +616,257 @@ export default function ChatPage({ user, onLogout }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-white border-t-transparent" />
+      <div className="h-screen w-full bg-[#0a0a0a] flex items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/30 border-t-pink-500" />
       </div>
     );
   }
 
   return (
-    <>
-      <style>{`
-        .glass {
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(18px);
-          -webkit-backdrop-filter: blur(18px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-        }
+    <div className="h-screen w-full bg-[#0a0a0a] text-white overflow-hidden">
+      <div className="flex h-full w-full">
+        {/* Sidebar */}
+        <aside className="hidden md:flex w-[300px] shrink-0 flex-col border-r border-white/10 bg-[#0f0f10]">
+          <div className="flex-1 overflow-y-auto p-5">
+            <div className="mb-8">
+              <img
+                src="/logo.png"
+                alt="Friemds Logo"
+                className="h-12 w-auto object-contain"
+              />
+              <p className="mt-3 text-sm text-zinc-500">Manage your vibe.</p>
+            </div>
 
-        .glass-strong {
-          background: rgba(255, 255, 255, 0.07);
-          backdrop-filter: blur(22px);
-          -webkit-backdrop-filter: blur(22px);
-          border: 1px solid rgba(255, 255, 255, 0.10);
-        }
+            <div
+              onClick={() => navigate('/profile')}
+              className="mb-6 cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-4 hover:bg-white/10 transition"
+            >
+              <div className="mb-3 text-xs text-zinc-400">Your profile</div>
+              <div className="flex items-center gap-3">
+                <Avatar className="h-12 w-12 border border-white/10">
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt="avatar"
+                      className="h-full w-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-600 text-white font-semibold">
+                      {getInitials(user?.name || 'U')}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
 
-        .premium-shadow {
-          box-shadow:
-            0 20px 60px rgba(0,0,0,0.45),
-            0 0 0 1px rgba(255,255,255,0.04),
-            0 0 60px rgba(168,85,247,0.08);
-        }
-
-        .gradient-border {
-          position: relative;
-        }
-
-        .gradient-border::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          padding: 1px;
-          background: linear-gradient(
-            135deg,
-            rgba(236,72,153,0.55),
-            rgba(168,85,247,0.5),
-            rgba(255,255,255,0.08)
-          );
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          pointer-events: none;
-        }
-      `}</style>
-
-      <div className="min-h-screen bg-black text-white relative overflow-hidden">
-        {/* Background blobs */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-20 left-[-70px] w-72 h-72 bg-pink-500/12 blur-3xl rounded-full" />
-          <div className="absolute top-[30%] right-[-90px] w-80 h-80 bg-purple-500/10 blur-3xl rounded-full" />
-          <div className="absolute bottom-[-100px] left-[30%] w-72 h-72 bg-fuchsia-500/10 blur-3xl rounded-full" />
-        </div>
-
-        <div className="relative z-10 flex min-h-screen">
-          {/* Desktop Sidebar */}
-          <aside className="hidden md:flex w-[290px] border-r border-white/10 bg-white/[0.03] backdrop-blur-2xl flex-col justify-between p-6">
-            <div>
-              <div className="mb-10">
-                <img
-                  src="/logo.png"
-                  alt="Friemds Logo"
-                  className="h-14 w-auto object-contain"
-                />
-                <p className="text-sm text-zinc-500 mt-3">Manage your vibe.</p>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">{user?.name}</p>
+                  <p className="truncate text-xs text-zinc-400">{user?.email}</p>
+                </div>
               </div>
+            </div>
 
-              <div
-                onClick={() => navigate('/profile')}
-                className="glass-strong rounded-3xl p-4 premium-shadow mb-6 cursor-pointer hover:bg-white/[0.09] transition-all duration-300"
+            <div className="space-y-3">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/')}
+                className="h-12 w-full justify-start rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10"
               >
-                <div className="text-xs text-zinc-400 mb-3">Your profile</div>
+                <Heart className="mr-2 h-4 w-4" />
+                Discover
+              </Button>
+
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/search')}
+                className="h-12 w-full justify-start rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
+
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/friends')}
+                className="h-12 w-full justify-start rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10"
+              >
+                <Users className="mr-2 h-4 w-4" />
+                Friends
+              </Button>
+
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/chat')}
+                className="h-12 w-full justify-start rounded-xl border border-pink-500/30 bg-pink-500/10 text-white hover:bg-pink-500/15"
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Chats
+              </Button>
+            </div>
+
+            {friend && (
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="mb-3 flex items-center gap-2 text-zinc-300">
+                  <MessageCircle className="h-4 w-4 text-pink-400" />
+                  <p className="text-sm font-medium">Chatting with</p>
+                </div>
+
                 <div className="flex items-center gap-3">
-                  <Avatar className="w-12 h-12 border border-white/10">
-                    {user?.avatar ? (
+                  <Avatar className="h-10 w-10 ring-2 ring-pink-500/30">
+                    {friend.avatar ? (
                       <img
-                        src={user.avatar}
-                        className="w-full h-full object-cover rounded-full"
-                        alt="avatar"
+                        src={friend.avatar}
+                        alt={friend.name}
+                        className="h-full w-full rounded-full object-cover"
                       />
                     ) : (
-                      <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-600 text-white font-semibold">
-                        {getInitials(user?.name || 'U')}
+                      <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-500 text-white text-sm">
+                        {getInitials(friend.name)}
                       </AvatarFallback>
                     )}
                   </Avatar>
 
                   <div className="min-w-0">
-                    <p className="font-semibold truncate">{user?.name}</p>
-                    <p className="text-xs text-zinc-400 truncate">{user?.email}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/')}
-                  className="w-full justify-start rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white h-12"
-                >
-                  <Heart className="w-4 h-4 mr-2" />
-                  Discover
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/search')}
-                  className="w-full justify-start rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white h-12"
-                >
-                  <Search className="w-4 h-4 mr-2" />
-                  Search
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/friends')}
-                  className="w-full justify-start rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white h-12"
-                >
-                  <Users className="w-4 h-4 mr-2" />
-                  Friends
-                </Button>
-
-                {/* <Button
-                  variant="ghost"
-                  onClick={() => navigate('/chat')}
-                  className="w-full justify-start rounded-2xl bg-white/15 border border-pink-400/30 text-white h-12"
-                >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Chats
-                </Button> */}
-              </div>
-
-              {/* Current chat friend preview */}
-              {friend && (
-                <div className="glass rounded-2xl p-4 mt-6">
-                  <div className="flex items-center gap-2 mb-3 text-zinc-300">
-                    <MessageCircle className="w-4 h-4 text-pink-400" />
-                    <p className="font-medium text-sm">Chatting with</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="w-10 h-10 ring-2 ring-pink-500/30">
-                      {friend.avatar ? (
-                        <img
-                          src={friend.avatar}
-                          className="w-full h-full object-cover rounded-full"
-                          alt={friend.name}
-                        />
-                      ) : (
-                        <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-500 text-white text-sm">
-                          {getInitials(friend.name)}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{friend.name}</p>
-                      <p className="text-xs text-emerald-400">Online</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <Button
-              onClick={onLogout}
-              className="rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/10 w-full"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </aside>
-
-          {/* Main Chat Area */}
-          <main className="flex-1 flex flex-col min-h-screen">
-            {/* Chat Header */}
-            <header className="sticky top-0 z-20 border-b border-white/10 bg-black/60 backdrop-blur-xl">
-              <div className="flex items-center justify-between px-4 py-3 md:px-6">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => navigate('/friends')}
-                    className="rounded-full border border-white/10 bg-white/5 p-2 transition hover:bg-white/10"
-                  >
-                    <ArrowLeft size={18} />
-                  </button>
-
-                  <Avatar className="h-11 w-11 ring-2 ring-white/10">
-                    {friend?.avatar ? (
-                      <img
-                        src={friend.avatar}
-                        className="h-full w-full rounded-full object-cover"
-                        alt={friend?.name || 'chat'}
-                      />
-                    ) : (
-                      <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-500 text-white">
-                        {getInitials(friend?.name)}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-
-                  <div>
-                    <p className="font-semibold tracking-tight">
-                      {friend?.name || 'Unknown User'}
-                    </p>
+                    <p className="truncate text-sm font-medium">{friend.name}</p>
                     <p className="text-xs text-emerald-400">Online</p>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <button className="rounded-full border border-white/10 bg-white/5 p-2 transition hover:bg-white/10">
-                    <Phone size={17} />
-                  </button>
-                  <button className="rounded-full border border-white/10 bg-white/5 p-2 transition hover:bg-white/10">
-                    <Video size={17} />
-                  </button>
-                  <button className="rounded-full border border-white/10 bg-white/5 p-2 transition hover:bg-white/10">
-                    <MoreVertical size={17} />
-                  </button>
-                </div>
               </div>
-            </header>
+            )}
+          </div>
 
-            {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto px-4 py-6 md:px-6">
-              {messages.length === 0 ? (
-                <div className="mt-24 flex flex-col items-center justify-center text-center">
-                  <div className="glass rounded-3xl px-6 py-10 text-center max-w-md">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 border border-white/10">
-                      <Sparkles className="w-6 h-6 text-pink-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold">No messages yet</h3>
-                    <p className="text-sm text-zinc-400 mt-2">
-                      Start your conversation with {friend?.name || 'your friend'} ✨
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3 max-w-4xl mx-auto">
-                  {messages.map((msg, index) => {
-                    const isMe = String(msg.sender_id) === String(user.user_id);
+          <div className="border-t border-white/10 p-5">
+            <Button
+              onClick={onLogout}
+              className="w-full rounded-xl border border-white/10 bg-white/10 text-white hover:bg-white/20"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
+        </aside>
 
-                    return (
-                      <motion.div
-                        key={msg.message_id || index}
-                        initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ duration: 0.2, delay: index * 0.015 }}
-                        className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-[82%] rounded-2xl px-4 py-3 text-sm shadow-lg md:max-w-[70%] ${
-                            isMe
-                              ? 'rounded-br-md bg-gradient-to-r from-pink-500 to-purple-500 text-white'
-                              : 'rounded-bl-md glass text-white'
-                          }`}
-                        >
-                          <p className="leading-relaxed">{msg.content}</p>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              )}
+        {/* Main Chat */}
+        <section className="flex min-w-0 flex-1 flex-col bg-[#0b0b0c]">
+          {/* Header */}
+          <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-4 md:px-6">
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                onClick={() => navigate('/friends')}
+                className="rounded-full border border-white/10 bg-white/5 p-2 hover:bg-white/10 md:hidden"
+              >
+                <ArrowLeft size={18} />
+              </button>
 
-              <div ref={messagesEndRef} />
+              <button
+                onClick={() => navigate('/friends')}
+                className="hidden rounded-full border border-white/10 bg-white/5 p-2 hover:bg-white/10 md:flex"
+              >
+                <ArrowLeft size={18} />
+              </button>
+
+              <Avatar className="h-10 w-10 shrink-0">
+                {friend?.avatar ? (
+                  <img
+                    src={friend.avatar}
+                    alt={friend?.name || 'chat'}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-500 text-white">
+                    {getInitials(friend?.name)}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+
+              <div className="min-w-0">
+                <p className="truncate font-semibold">
+                  {friend?.name || 'Unknown User'}
+                </p>
+                <p className="text-xs text-emerald-400">Online</p>
+              </div>
             </div>
 
-            {/* Input Footer */}
-            <footer className="sticky bottom-0 z-20 border-t border-white/10 bg-black/60 p-4 backdrop-blur-xl">
-              <form onSubmit={sendMessage} className="mx-auto flex max-w-4xl gap-3">
-                <Input
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type a message..."
-                  className="h-12 rounded-2xl border-white/10 bg-white/10 px-5 text-white placeholder:text-zinc-400 focus-visible:ring-1 focus-visible:ring-pink-500"
-                />
+            <div className="flex shrink-0 items-center gap-2">
+              <button className="rounded-full border border-white/10 bg-white/5 p-2 hover:bg-white/10">
+                <Phone size={17} />
+              </button>
+              <button className="rounded-full border border-white/10 bg-white/5 p-2 hover:bg-white/10">
+                <Video size={17} />
+              </button>
+              <button className="rounded-full border border-white/10 bg-white/5 p-2 hover:bg-white/10">
+                <MoreVertical size={17} />
+              </button>
+            </div>
+          </div>
 
-                <Button
-                  type="submit"
-                  className="h-12 w-12 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg shadow-pink-500/20 transition hover:scale-105"
-                >
-                  <Send size={18} />
-                </Button>
-              </form>
-            </footer>
-          </main>
-        </div>
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto px-3 py-4 md:px-6">
+            {messages.length === 0 ? (
+              <div className="flex h-full items-center justify-center">
+                <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 px-6 py-10 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 border border-white/10">
+                    <Sparkles className="h-6 w-6 text-pink-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold">No messages yet</h3>
+                  <p className="mt-2 text-sm text-zinc-400">
+                    Start your conversation with {friend?.name || 'your friend'} ✨
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="mx-auto flex w-full max-w-4xl flex-col gap-3">
+                {messages.map((msg, index) => {
+                  const isMe = String(msg.sender_id) === String(user.user_id);
+
+                  return (
+                    <motion.div
+                      key={msg.message_id || index}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.18 }}
+                      className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={[
+                          'max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow',
+                          'md:max-w-[70%]',
+                          isMe
+                            ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-br-md'
+                            : 'bg-white/8 border border-white/10 text-white rounded-bl-md'
+                        ].join(' ')}
+                      >
+                        <p className="whitespace-pre-wrap break-words leading-relaxed">
+                          {msg.content}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="shrink-0 border-t border-white/10 bg-[#0f0f10] px-3 py-3 md:px-6">
+            <form onSubmit={sendMessage} className="mx-auto flex w-full max-w-4xl gap-3">
+              <Input
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type a message..."
+                className="h-12 flex-1 rounded-2xl border-white/10 bg-white/10 px-4 text-white placeholder:text-zinc-400 focus-visible:ring-1 focus-visible:ring-pink-500"
+              />
+
+              <Button
+                type="submit"
+                className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:opacity-90"
+              >
+                <Send size={18} />
+              </Button>
+            </form>
+          </div>
+        </section>
       </div>
-    </>
+    </div>
   );
 }
