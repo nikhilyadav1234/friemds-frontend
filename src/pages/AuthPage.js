@@ -534,9 +534,243 @@
 
 
 
+// import { useState } from 'react';
+// import { motion } from 'framer-motion';
+// import { Mail, ArrowRight, Shield } from 'lucide-react';
+// import { Button } from '@/components/ui/button';
+// import { Input } from '@/components/ui/input';
+// import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+// import axios from 'axios';
+// import { toast } from 'sonner';
+
+// const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+// const API = `${BACKEND_URL}/api`;
+
+// export default function AuthPage({ onLogin }) {
+//   const [mode, setMode] = useState("login");
+//   const [step, setStep] = useState('email');
+
+//   const [email, setEmail] = useState('');
+//   const [otp, setOtp] = useState('');
+//   const [firstName, setFirstName] = useState('');
+// const [lastName, setLastName] = useState('');
+// const [age, setAge] = useState('');
+// const [gender, setGender] = useState('');
+// const [phone, setPhone] = useState('');
+// const [interests, setInterests] = useState('');
+//   const [loading, setLoading] = useState(false);
+
+//   const handleSendOTP = async (e) => {
+//     e.preventDefault();
+//     setLoading(true);
+
+//     try {
+//       const url =
+//         mode === "login"
+//           ? `${API}/auth/login`
+//           : `${API}/auth/send-otp`;
+
+//       await axios.post(url, { email });
+
+//       toast.success('OTP sent!');
+//       setStep('otp');
+//     } catch (error) {
+//       toast.error(error.response?.data?.msg || 'Failed');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleVerifyOTP = async () => {
+//     if (otp.length !== 6) return toast.error('Enter full OTP');
+
+//     setLoading(true);
+
+//     try {
+//       const res = await axios.post(`${API}/auth/verify-otp`, {
+//   email,
+//   otp,
+//   firstName,
+//   lastName,
+//   age,
+//   gender,
+//   phone,
+//   name: `${firstName} ${lastName}`,
+//   interests: interests
+//     ? interests.split(',').map(i => i.trim())
+//     : []
+// });
+//       sessionStorage.setItem("friemds_token", res.data.token);
+//       onLogin(res.data.token, res.data.user);
+
+//       window.location.href = res.data.isNewUser ? "/profile" : "/";
+//     } catch (error) {
+//       toast.error(error.response?.data?.msg || 'Failed');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black flex items-center justify-center px-4 text-white">
+
+//       <div className="w-full max-w-6xl grid md:grid-cols-2 gap-10 items-center">
+
+//         {/* LEFT SIDE */}
+//         <motion.div
+//           initial={{ opacity: 0, x: -40 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           className="hidden md:block space-y-6"
+//         >
+//           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur text-sm">
+//             <Shield className="w-4 h-4 text-pink-400" />
+//             Verified Campus Network
+//           </div>
+
+//           <h1 className="text-5xl font-bold leading-tight">
+//             Find your circle,
+//             <br />
+//             <span className="bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+//               effortlessly
+//             </span>
+//           </h1>
+
+//           <p className="text-zinc-400 text-lg">
+//             A place where real connections bloom — no noise, no fakes.
+//           </p>
+//         </motion.div>
+
+//         {/* RIGHT SIDE */}
+//         <motion.div
+//           initial={{ opacity: 0, x: 40 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl"
+//         >
+
+//           {/* SWITCH */}
+//           <div className="flex bg-white/10 p-1 rounded-full mb-6">
+//             <button
+//               onClick={() => setMode("login")}
+//               className={`flex-1 py-2 rounded-full transition ${
+//                 mode === "login"
+//                   ? "bg-gradient-to-r from-pink-500 to-purple-500"
+//                   : "text-zinc-400"
+//               }`}
+//             >
+//               Login
+//             </button>
+
+//             <button
+//               onClick={() => setMode("signup")}
+//               className={`flex-1 py-2 rounded-full transition ${
+//                 mode === "signup"
+//                   ? "bg-gradient-to-r from-pink-500 to-purple-500"
+//                   : "text-zinc-400"
+//               }`}
+//             >
+//               Signup
+//             </button>
+//           </div>
+
+//           <div className="text-center mb-6">
+//             <h2 className="text-3xl font-semibold">FRIEMDS</h2>
+//             <p className="text-zinc-400 text-sm">
+//               {step === 'email' ? "Enter your email" : "Enter OTP"}
+//             </p>
+//           </div>
+
+//           {/* EMAIL */}
+//           {step === 'email' && (
+//             <form onSubmit={handleSendOTP} className="space-y-4">
+
+//               <div className="relative">
+//                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"/>
+//                 <Input
+//                   type="email"
+//                   placeholder="Email"
+//                   value={email}
+//                   onChange={(e) => setEmail(e.target.value)}
+//                   className="pl-10 h-12 rounded-xl bg-white/10 border-white/10 text-white placeholder:text-zinc-400 focus:ring-2 focus:ring-pink-500"
+//                 />
+//               </div>
+
+//               {mode === "signup" && (
+//   <>
+//     <Input placeholder="First Name" value={firstName} onChange={(e)=>setFirstName(e.target.value)} />
+    
+//     <Input placeholder="Last Name" value={lastName} onChange={(e)=>setLastName(e.target.value)} />
+    
+//     <Input placeholder="Age" value={age} onChange={(e)=>setAge(e.target.value)} />
+    
+//     <Input placeholder="Gender" value={gender} onChange={(e)=>setGender(e.target.value)} />
+    
+//     <Input placeholder="Phone Number" value={phone} onChange={(e)=>setPhone(e.target.value)} />
+    
+//     <Input placeholder="Interests" value={interests} onChange={(e)=>setInterests(e.target.value)} />
+//   </>
+// )}
+
+//               <Button className="w-full h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90">
+//                 {loading ? "Sending..." : "Continue"}
+//                 <ArrowRight className="ml-2 w-5 h-5"/>
+//               </Button>
+
+//             </form>
+//           )}
+
+//           {/* OTP */}
+//           {step === 'otp' && (
+//             <div className="space-y-6">
+
+//               <div className="flex justify-center">
+//                 <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+//                   <InputOTPGroup>
+//                     {[0,1,2,3,4,5].map(i => (
+//                       <InputOTPSlot key={i} index={i} />
+//                     ))}
+//                   </InputOTPGroup>
+//                 </InputOTP>
+//               </div>
+
+//               <Button
+//                 onClick={handleVerifyOTP}
+//                 className="w-full h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-500"
+//               >
+//                 {loading ? "Verifying..." : "Verify"}
+//               </Button>
+
+//               <button
+//                 onClick={() => setStep('email')}
+//                 className="text-center w-full text-sm text-zinc-400"
+//               >
+//                 ← Back
+//               </button>
+
+//             </div>
+//           )}
+
+//         </motion.div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, ArrowRight, Shield } from 'lucide-react';
+import { Mail, ArrowRight, Shield, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
@@ -553,11 +787,11 @@ export default function AuthPage({ onLogin }) {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [firstName, setFirstName] = useState('');
-const [lastName, setLastName] = useState('');
-const [age, setAge] = useState('');
-const [gender, setGender] = useState('');
-const [phone, setPhone] = useState('');
-const [interests, setInterests] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [phone, setPhone] = useState('');
+  const [interests, setInterests] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSendOTP = async (e) => {
@@ -588,18 +822,19 @@ const [interests, setInterests] = useState('');
 
     try {
       const res = await axios.post(`${API}/auth/verify-otp`, {
-  email,
-  otp,
-  firstName,
-  lastName,
-  age,
-  gender,
-  phone,
-  name: `${firstName} ${lastName}`,
-  interests: interests
-    ? interests.split(',').map(i => i.trim())
-    : []
-});
+        email,
+        otp,
+        firstName,
+        lastName,
+        age,
+        gender,
+        phone,
+        name: `${firstName} ${lastName}`,
+        interests: interests
+          ? interests.split(',').map(i => i.trim())
+          : []
+      });
+
       sessionStorage.setItem("friemds_token", res.data.token);
       onLogin(res.data.token, res.data.user);
 
@@ -611,152 +846,557 @@ const [interests, setInterests] = useState('');
     }
   };
 
+  const fadeUp = {
+    hidden: { opacity: 0, y: 30 },
+    show: (i = 0) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        delay: i * 0.08,
+        ease: [0.22, 1, 0.36, 1]
+      }
+    })
+  };
+
+  const bubbleUsers = [
+    {
+      src: '/images/user1.jpg',
+      alt: 'user 1',
+      duration: 2.4,
+      delay: 0,
+      y: [0, -6, 0],
+      shadow: 'shadow-pink-500/25'
+    },
+    {
+      src: '/images/user2.jpg',
+      alt: 'user 2',
+      duration: 2.8,
+      delay: 0.2,
+      y: [0, -10, 0],
+      shadow: 'shadow-purple-500/25'
+    },
+    {
+      src: '/images/user3.jpg',
+      alt: 'user 3',
+      duration: 2.2,
+      delay: 0.35,
+      y: [0, -7, 0],
+      shadow: 'shadow-fuchsia-500/25'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black flex items-center justify-center px-4 text-white">
+    <>
+      <style>{`
+        @keyframes shine {
+          0% { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
 
-      <div className="w-full max-w-6xl grid md:grid-cols-2 gap-10 items-center">
+        @keyframes floaty {
+          0%, 100% { transform: translateY(0px) translateX(0px); }
+          25% { transform: translateY(-10px) translateX(8px); }
+          50% { transform: translateY(6px) translateX(-6px); }
+          75% { transform: translateY(-8px) translateX(10px); }
+        }
 
-        {/* LEFT SIDE */}
+        @keyframes pulseGlow {
+          0%, 100% {
+            opacity: 0.45;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.75;
+            transform: scale(1.08);
+          }
+        }
+
+        @keyframes rotateSlow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes gridMove {
+          0% { transform: translateY(0px); }
+          100% { transform: translateY(40px); }
+        }
+
+        @keyframes buttonShine {
+          0% { transform: translateX(-150%); }
+          100% { transform: translateX(250%); }
+        }
+
+        .shine-text {
+          background: linear-gradient(
+            90deg,
+            #ec4899 0%,
+            #ffffff 20%,
+            #a855f7 40%,
+            #ffffff 60%,
+            #ec4899 100%
+          );
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          animation: shine 4s linear infinite;
+        }
+
+        .auth-glow {
+          position: relative;
+          box-shadow:
+            0 0 0 1px rgba(255,255,255,0.06),
+            0 20px 60px rgba(0,0,0,0.45),
+            0 0 80px rgba(168,85,247,0.14),
+            0 0 120px rgba(236,72,153,0.08);
+        }
+
+        .auth-glow::before {
+          content: "";
+          position: absolute;
+          inset: -1px;
+          border-radius: inherit;
+          padding: 1px;
+          background: linear-gradient(
+            135deg,
+            rgba(236,72,153,0.35),
+            rgba(168,85,247,0.25),
+            rgba(255,255,255,0.08),
+            rgba(236,72,153,0.28)
+          );
+          -webkit-mask:
+            linear-gradient(#000 0 0) content-box,
+            linear-gradient(#000 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          pointer-events: none;
+        }
+
+        .glass-input {
+          backdrop-filter: blur(18px);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.04),
+            0 0 0 rgba(236,72,153,0);
+          transition: all 0.35s ease;
+        }
+
+        .glass-input:hover {
+          transform: translateY(-1px);
+          border-color: rgba(255,255,255,0.16);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.05),
+            0 10px 30px rgba(168,85,247,0.08);
+        }
+
+        .mode-pill {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .magic-btn {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .magic-btn::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 40%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,0.28),
+            transparent
+          );
+          transform: translateX(-150%);
+          animation: buttonShine 3.2s linear infinite;
+        }
+
+        .otp-slot-glow {
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.04),
+            0 0 0 1px rgba(255,255,255,0.04);
+          transition: all 0.3s ease;
+        }
+
+        .otp-slot-glow:focus-within,
+        .otp-slot-glow:hover {
+          border-color: rgba(236,72,153,0.45);
+          box-shadow:
+            0 0 0 3px rgba(236,72,153,0.10),
+            0 0 30px rgba(168,85,247,0.16);
+          transform: translateY(-2px);
+        }
+
+        .bg-grid {
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+          background-size: 48px 48px;
+          mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+          animation: gridMove 6s linear infinite alternate;
+          pointer-events: none;
+        }
+
+        .orb {
+          position: absolute;
+          border-radius: 9999px;
+          filter: blur(60px);
+          pointer-events: none;
+        }
+
+        .orb-1 {
+          width: 280px;
+          height: 280px;
+          background: rgba(236,72,153,0.22);
+          top: 8%;
+          left: 8%;
+          animation: floaty 10s ease-in-out infinite, pulseGlow 6s ease-in-out infinite;
+        }
+
+        .orb-2 {
+          width: 320px;
+          height: 320px;
+          background: rgba(168,85,247,0.18);
+          bottom: 8%;
+          right: 10%;
+          animation: floaty 13s ease-in-out infinite reverse, pulseGlow 7s ease-in-out infinite;
+        }
+
+        .orb-3 {
+          width: 180px;
+          height: 180px;
+          background: rgba(59,130,246,0.12);
+          top: 50%;
+          left: 50%;
+          animation: floaty 11s ease-in-out infinite;
+        }
+
+        .ring-spin {
+          position: absolute;
+          inset: -80px;
+          border-radius: 9999px;
+          border: 1px solid rgba(255,255,255,0.05);
+          animation: rotateSlow 22s linear infinite;
+        }
+
+        .ring-spin::before,
+        .ring-spin::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          border: 1px dashed rgba(236,72,153,0.10);
+        }
+
+        .ring-spin::after {
+          inset: 30px;
+          border-color: rgba(168,85,247,0.10);
+        }
+      `}</style>
+
+      <div className="relative min-h-screen bg-black flex items-center justify-center px-4 text-white overflow-hidden">
+        <div className="orb orb-1" />
+        <div className="orb orb-2" />
+        <div className="orb orb-3" />
+        <div className="bg-grid" />
+
         <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="hidden md:block space-y-6"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur text-sm">
-            <Shield className="w-4 h-4 text-pink-400" />
-            Verified Campus Network
-          </div>
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.1 }}
+          className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.18),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(236,72,153,0.18),_transparent_28%),radial-gradient(circle_at_center,_rgba(255,255,255,0.04),_transparent_40%)]"
+        />
 
-          <h1 className="text-5xl font-bold leading-tight">
-            Find your circle,
-            <br />
-            <span className="bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
-              effortlessly
-            </span>
-          </h1>
+        <div className="w-full max-w-6xl grid md:grid-cols-2 gap-10 items-center relative z-10">
+          {/* LEFT SIDE */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="hidden md:block space-y-7 relative"
+          >
+            <div className="ring-spin opacity-70" />
 
-          <p className="text-zinc-400 text-lg">
-            A place where real connections bloom — no noise, no fakes.
-          </p>
-        </motion.div>
-
-        {/* RIGHT SIDE */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl"
-        >
-
-          {/* SWITCH */}
-          <div className="flex bg-white/10 p-1 rounded-full mb-6">
-            <button
-              onClick={() => setMode("login")}
-              className={`flex-1 py-2 rounded-full transition ${
-                mode === "login"
-                  ? "bg-gradient-to-r from-pink-500 to-purple-500"
-                  : "text-zinc-400"
-              }`}
+            <motion.div
+              custom={0}
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/8 border border-white/10 backdrop-blur-md text-sm text-zinc-200 shadow-[0_0_30px_rgba(236,72,153,0.10)]"
             >
-              Login
-            </button>
+              <Shield className="w-4 h-4 text-pink-400" />
+              Verified Campus Network
+              <Sparkles className="w-4 h-4 text-purple-300" />
+            </motion.div>
 
-            <button
-              onClick={() => setMode("signup")}
-              className={`flex-1 py-2 rounded-full transition ${
-                mode === "signup"
-                  ? "bg-gradient-to-r from-pink-500 to-purple-500"
-                  : "text-zinc-400"
-              }`}
+            <motion.h1
+              custom={1}
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              className="text-5xl lg:text-6xl font-bold leading-tight tracking-tight"
             >
-              Signup
-            </button>
-          </div>
+              Find your circle,
+              <br />
+              <span className="shine-text">
+                effortlessly
+              </span>
+            </motion.h1>
 
-          <div className="text-center mb-6">
-            <h2 className="text-3xl font-semibold">FRIEMDS</h2>
-            <p className="text-zinc-400 text-sm">
-              {step === 'email' ? "Enter your email" : "Enter OTP"}
-            </p>
-          </div>
+            <motion.p
+              custom={2}
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              className="text-zinc-400 text-lg max-w-lg leading-relaxed"
+            >
+              A place exclusively for University Friendship.
+            </motion.p>
 
-          {/* EMAIL */}
-          {step === 'email' && (
-            <form onSubmit={handleSendOTP} className="space-y-4">
-
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"/>
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12 rounded-xl bg-white/10 border-white/10 text-white placeholder:text-zinc-400 focus:ring-2 focus:ring-pink-500"
-                />
+            <motion.div
+              custom={3}
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              className="flex items-center gap-4 pt-2"
+            >
+              <div className="flex -space-x-3">
+                {bubbleUsers.map((user, index) => (
+                  <motion.div
+                    key={index}
+                    animate={{ y: user.y }}
+                    transition={{ duration: user.duration, repeat: Infinity, delay: user.delay }}
+                    whileHover={{ scale: 1.08 }}
+                    className={`relative w-11 h-11 rounded-full border-2 border-black overflow-hidden bg-zinc-800 shadow-lg ${user.shadow}`}
+                  >
+                    <img
+                      src={user.src}
+                      alt={user.alt}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                  </motion.div>
+                ))}
               </div>
 
-              {mode === "signup" && (
-  <>
-    <Input placeholder="First Name" value={firstName} onChange={(e)=>setFirstName(e.target.value)} />
-    
-    <Input placeholder="Last Name" value={lastName} onChange={(e)=>setLastName(e.target.value)} />
-    
-    <Input placeholder="Age" value={age} onChange={(e)=>setAge(e.target.value)} />
-    
-    <Input placeholder="Gender" value={gender} onChange={(e)=>setGender(e.target.value)} />
-    
-    <Input placeholder="Phone Number" value={phone} onChange={(e)=>setPhone(e.target.value)} />
-    
-    <Input placeholder="Interests" value={interests} onChange={(e)=>setInterests(e.target.value)} />
-  </>
-)}
+              <span className="text-sm text-zinc-400">
+                Meet students with shared interests
+              </span>
+            </motion.div>
+          </motion.div>
 
-              <Button className="w-full h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90">
-                {loading ? "Sending..." : "Continue"}
-                <ArrowRight className="ml-2 w-5 h-5"/>
-              </Button>
-
-            </form>
-          )}
-
-          {/* OTP */}
-          {step === 'otp' && (
-            <div className="space-y-6">
-
-              <div className="flex justify-center">
-                <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-                  <InputOTPGroup>
-                    {[0,1,2,3,4,5].map(i => (
-                      <InputOTPSlot key={i} index={i} />
-                    ))}
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-
-              <Button
-                onClick={handleVerifyOTP}
-                className="w-full h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-500"
+          {/* RIGHT SIDE */}
+          <motion.div
+            initial={{ opacity: 0, x: 50, scale: 0.96 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ y: -4 }}
+            className="relative"
+          >
+            <motion.div
+              animate={{
+                boxShadow: [
+                  '0 0 0 1px rgba(255,255,255,0.06), 0 20px 60px rgba(0,0,0,0.45), 0 0 80px rgba(168,85,247,0.12)',
+                  '0 0 0 1px rgba(255,255,255,0.06), 0 20px 60px rgba(0,0,0,0.45), 0 0 110px rgba(236,72,153,0.14)',
+                  '0 0 0 1px rgba(255,255,255,0.06), 0 20px 60px rgba(0,0,0,0.45), 0 0 80px rgba(168,85,247,0.12)'
+                ]
+              }}
+              transition={{ duration: 4, repeat: Infinity }}
+              className="auth-glow bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl"
+            >
+              {/* SWITCH */}
+              <motion.div
+                layout
+                className="flex bg-white/8 p-1 rounded-full mb-8 border border-white/10 backdrop-blur-md"
               >
-                {loading ? "Verifying..." : "Verify"}
-              </Button>
+                <button
+                  onClick={() => setMode("login")}
+                  className={`mode-pill flex-1 py-2.5 rounded-full transition-all duration-300 font-medium ${
+                    mode === "login"
+                      ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg shadow-pink-500/20"
+                      : "text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  Login
+                </button>
 
-              <button
-                onClick={() => setStep('email')}
-                className="text-center w-full text-sm text-zinc-400"
+                <button
+                  onClick={() => setMode("signup")}
+                  className={`mode-pill flex-1 py-2.5 rounded-full transition-all duration-300 font-medium ${
+                    mode === "signup"
+                      ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg shadow-purple-500/20"
+                      : "text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  Signup
+                </button>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55 }}
+                className="text-center mb-8"
               >
-                ← Back
-              </button>
+                <motion.div
+                  initial={{ scale: 0.88, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.7, type: 'spring' }}
+                  className="flex justify-center items-center mb-4"
+                >
+                  <motion.img
+                    src="/logo.png"
+                    alt="logo"
+                    className="h-14 w-auto object-contain mx-auto drop-shadow-[0_0_22px_rgba(236,72,153,0.35)]"
+                    animate={{
+                      y: [0, -4, 0],
+                      filter: [
+                        'drop-shadow(0 0 10px rgba(236,72,153,0.22))',
+                        'drop-shadow(0 0 18px rgba(168,85,247,0.30))',
+                        'drop-shadow(0 0 10px rgba(236,72,153,0.22))'
+                      ]
+                    }}
+                    transition={{ duration: 3.4, repeat: Infinity }}
+                  />
+                </motion.div>
 
-            </div>
-          )}
+                <p className="text-zinc-400 text-sm">
+                  {step === 'email' ? "Enter your email" : "Enter OTP"}
+                </p>
+              </motion.div>
 
-        </motion.div>
+              {/* EMAIL */}
+              {step === 'email' && (
+                <motion.form
+                  key={`${mode}-email`}
+                  onSubmit={handleSendOTP}
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.45 }}
+                  className="space-y-4"
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.01 }}
+                    className="relative"
+                  >
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
+                    <Input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="glass-input pl-10 h-12 rounded-xl bg-white/10 border border-white/10 text-white placeholder:text-zinc-400 focus:ring-2 focus:ring-pink-500 focus:border-pink-500/40 transition-all duration-300"
+                    />
+                  </motion.div>
+
+                  {mode === "signup" && (
+                    <>
+                      {[
+                        { placeholder: "First Name", value: firstName, setter: setFirstName },
+                        { placeholder: "Last Name", value: lastName, setter: setLastName },
+                        { placeholder: "Age", value: age, setter: setAge },
+                        { placeholder: "Gender", value: gender, setter: setGender },
+                        { placeholder: "Phone Number", value: phone, setter: setPhone },
+                        { placeholder: "Interests", value: interests, setter: setInterests },
+                      ].map((field, idx) => (
+                        <motion.div
+                          key={field.placeholder}
+                          initial={{ opacity: 0, y: 16 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.35, delay: idx * 0.05 }}
+                          whileHover={{ scale: 1.01 }}
+                        >
+                          <Input
+                            placeholder={field.placeholder}
+                            value={field.value}
+                            onChange={(e) => field.setter(e.target.value)}
+                            className="glass-input h-12 rounded-xl bg-white/10 border border-white/10 text-white placeholder:text-zinc-400 focus:ring-2 focus:ring-pink-500 focus:border-pink-500/40 transition-all duration-300"
+                          />
+                        </motion.div>
+                      ))}
+                    </>
+                  )}
+
+                  <motion.div
+                    whileHover={{ scale: 1.015 }}
+                    whileTap={{ scale: 0.985 }}
+                  >
+                    <Button className="magic-btn w-full h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 text-white font-medium shadow-lg shadow-pink-500/20 transition-all duration-300">
+                      {loading ? "Sending..." : "Continue"}
+                      <ArrowRight className="ml-2 w-5 h-5" />
+                    </Button>
+                  </motion.div>
+                </motion.form>
+              )}
+
+              {/* OTP */}
+              {step === 'otp' && (
+                <motion.div
+                  key="otp-step"
+                  initial={{ opacity: 0, y: 18, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.45 }}
+                  className="space-y-6"
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.92 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4 }}
+                    className="flex justify-center"
+                  >
+                    <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                      <InputOTPGroup className="gap-2">
+                        {[0, 1, 2, 3, 4, 5].map(i => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.05 }}
+                            whileHover={{ y: -2 }}
+                          >
+                            <InputOTPSlot
+                              index={i}
+                              className="otp-slot-glow w-12 h-14 rounded-xl border border-white/10 bg-white/10 text-white text-lg"
+                            />
+                          </motion.div>
+                        ))}
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </motion.div>
+
+                  <motion.div
+                    whileHover={{ scale: 1.015 }}
+                    whileTap={{ scale: 0.985 }}
+                  >
+                    <Button
+                      onClick={handleVerifyOTP}
+                      className="magic-btn w-full h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 text-white font-medium shadow-lg shadow-purple-500/20 transition-all duration-300"
+                    >
+                      {loading ? "Verifying..." : "Verify"}
+                    </Button>
+                  </motion.div>
+
+                  <motion.button
+                    onClick={() => setStep('email')}
+                    whileHover={{ x: -4 }}
+                    className="text-center w-full text-sm text-zinc-400 hover:text-white transition-colors"
+                  >
+                    ← Back
+                  </motion.button>
+                </motion.div>
+              )}
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
-
-
-
-
-
-
